@@ -92,6 +92,21 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  /* initialize LEDs to off */
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(BLUE);
+  LedOff(PURPLE);
+  LedOff(WHITE);
+  LedOff(RED);
+  
+  /* backlight to white */
+  LedOn(LCD_RED);
+  LedOn(LCD_GREEN);
+  LedOn(LCD_BLUE);
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -140,6 +155,85 @@ State Machine Function Definitions
 /* What does this state do? */
 static void UserApp1SM_Idle(void)
 {
+  
+    static u16 u16PurpleBlinkCounter = 0;
+    static u8 u8Counter = 0;
+    static u8 u8ColorIndex = 0;
+    
+    u16PurpleBlinkCounter++;
+    if(u16PurpleBlinkCounter == 250) {
+      u8Counter++;
+      if(u8Counter == 16) {
+        u8Counter = 0;
+      }
+      
+      if(u8Counter & 0x01) {
+        LedOn(RED);
+      } else {
+        LedOff(RED);
+      }
+      
+      if(u8Counter & 0x02) {
+        LedOn(ORANGE);
+      } else {
+        LedOff(ORANGE);
+      }
+      
+      if(u8Counter & 0x04) {
+        LedOn(YELLOW);
+      } else {
+        LedOff(YELLOW);
+      }
+      
+      if(u8Counter & 0x08) {
+        LedOn(GREEN);
+      } else {
+        LedOff(GREEN);
+      }
+      
+      u8ColorIndex++;
+      if(u8ColorIndex == 7) {
+        u8ColorIndex = 0;
+      }
+      
+      switch (u8ColorIndex)
+      {
+        case 0: // white
+          LedOn(LCD_GREEN);
+          LedOn(LCD_RED);
+          LedOn(LCD_BLUE);
+          break;
+         
+        case 1:         // purple
+          LedOn(LCD_RED);
+          LedOn(LCD_BLUE);
+          break;
+         
+        case 2:         // blue
+          LedOn(LCD_BLUE);
+          break;
+        
+        case 3:         // cyan
+          LedOn(LCD_GREEN);
+          LedOn(LCD_BLUE);
+          break;
+         
+        case 4:         // green
+          LedOn(LCD_GREEN);
+          break;
+        
+        case 5:         // yellow
+          LedOn(LCD_GREEN);
+          LedOn(LCD_RED);
+          break;
+        
+        case 6:         // red
+          LedOn(LCD_RED);
+          break;
+      
+      LedToggle(PURPLE);
+      u16PurpleBlinkCounter = 0;
+    }
     
 } /* end UserApp1SM_Idle() */
      
