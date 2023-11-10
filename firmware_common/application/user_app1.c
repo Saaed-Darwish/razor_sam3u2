@@ -102,10 +102,18 @@ void UserApp1Initialize(void)
   LedOff(WHITE);
   LedOff(RED);
   
+  LedPWM(CYAN, LED_PWM_5);
+  LedPWM(GREEN, LED_PWM_5);
+  LedPWM(YELLOW, LED_PWM_5);
+  LedPWM(ORANGE, LED_PWM_5);
+  LedPWM(BLUE, LED_PWM_5);
+  LedPWM(PURPLE, LED_PWM_5);
+  LedPWM(WHITE, LED_PWM_5);
+  LedPWM(RED, LED_PWM_5);
   /* backlight to white */
   LedOn(LCD_RED);
-  LedOn(LCD_GREEN);
   LedOn(LCD_BLUE);
+  LedOn(LCD_GREEN);
   
   /* If good initialization, set state to Idle */
   if( 1 )
@@ -160,13 +168,23 @@ static void UserApp1SM_Idle(void)
     static u8 u8Counter = 0;
     static u8 u8ColorIndex = 0;
     
+    LedOff(CYAN);
+    LedOff(GREEN);
+    LedOff(YELLOW);
+    LedOff(ORANGE);
+    LedOff(BLUE);
+    LedOff(PURPLE);
+    LedOff(WHITE);
+    LedOff(RED);
+    
     u16PurpleBlinkCounter++;
     if(u16PurpleBlinkCounter == 250) {
       u8Counter++;
       if(u8Counter == 16) {
         u8Counter = 0;
       }
-      
+      /*
+
       if(u8Counter & 0x01) {
         LedOn(RED);
       } else {
@@ -190,46 +208,140 @@ static void UserApp1SM_Idle(void)
       } else {
         LedOff(GREEN);
       }
+      */
       
       u8ColorIndex++;
-      if(u8ColorIndex == 7) {
+      if(u8ColorIndex == 16) {
         u8ColorIndex = 0;
       }
       
       switch (u8ColorIndex)
       {
-        case 0: // white
-          LedOn(LCD_GREEN);
-          LedOn(LCD_RED);
-          LedOn(LCD_BLUE);
-          break;
-         
-        case 1:         // purple
-          LedOn(LCD_RED);
-          LedOn(LCD_BLUE);
-          break;
-         
-        case 2:         // blue
-          LedOn(LCD_BLUE);
-          break;
-        
-        case 3:         // cyan
-          LedOn(LCD_GREEN);
-          LedOn(LCD_BLUE);
-          break;
-         
-        case 4:         // green
-          LedOn(LCD_GREEN);
-          break;
-        
-        case 5:         // yellow
-          LedOn(LCD_GREEN);
-          LedOn(LCD_RED);
-          break;
-        
-        case 6:         // red
-          LedOn(LCD_RED);
-          break;
+          case 0:         // pure red
+              LedOff(LCD_BLUE);
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedPWM(LCD_RED, LED_PWM_100);
+              break;
+
+          case 1:         // red with a hint of blue
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_95);
+              LedPWM(LCD_BLUE, LED_PWM_5);
+              break;
+
+          case 2:         // deeper red-magenta
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_90);
+              LedPWM(LCD_BLUE, LED_PWM_10);
+              break;
+
+          case 3:         // red-magenta
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_85);
+              LedPWM(LCD_BLUE, LED_PWM_15);
+              break;
+
+          case 4:         // magenta with dominant red
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_80);
+              LedPWM(LCD_BLUE, LED_PWM_20);
+              break;
+
+          case 5:         // magenta
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_75);
+              LedPWM(LCD_BLUE, LED_PWM_25);
+              break;
+
+          case 6:         // magenta with dominant blue
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_70);
+              LedPWM(LCD_BLUE, LED_PWM_30);
+              break;
+
+          case 7:         // purple
+              LedOff(LCD_GREEN);
+              LedOn(LCD_BLUE);
+              LedOn(LCD_RED);
+              LedPWM(LCD_RED, LED_PWM_60);
+              LedPWM(LCD_BLUE, LED_PWM_40);
+              break;
+
+          case 8:         // deeper purple
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_50);
+              LedPWM(LCD_BLUE, LED_PWM_50);
+              break;
+
+          case 9:         // purple-pink
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_60);
+              LedPWM(LCD_BLUE, LED_PWM_40);
+              break;
+
+          case 10:        // pinkish-purple
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_70);
+              LedPWM(LCD_BLUE, LED_PWM_30);
+              break;
+
+          case 11:        // pink
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_80);
+              LedPWM(LCD_BLUE, LED_PWM_20);
+              break;
+
+          case 12:        // deeper pink
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_85);
+              LedPWM(LCD_BLUE, LED_PWM_15);
+              break;
+
+          case 13:        // pink-red
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedOn(LCD_BLUE);
+              LedPWM(LCD_RED, LED_PWM_90);
+              LedPWM(LCD_BLUE, LED_PWM_10);
+              break;
+
+          case 14:        // near pure red
+              LedOff(LCD_BLUE);
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedPWM(LCD_RED, LED_PWM_95);
+              break;
+
+          case 15:        // back to red
+              LedOff(LCD_BLUE);
+              LedOff(LCD_GREEN);
+              LedOn(LCD_RED);
+              LedPWM(LCD_RED, LED_PWM_100);
+              break;
+      }
       
       LedToggle(PURPLE);
       u16PurpleBlinkCounter = 0;
@@ -240,7 +352,7 @@ static void UserApp1SM_Idle(void)
 
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* Handle an error */
-static void UserApp1SM_Error(void)          
+static void UserApp1SM_Error(void)
 {
   
 } /* end UserApp1SM_Error() */
