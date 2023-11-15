@@ -53,6 +53,8 @@ extern volatile u32 G_u32SystemTime1ms;                   /*!< @brief From main.
 extern volatile u32 G_u32SystemTime1s;                    /*!< @brief From main.c */
 extern volatile u32 G_u32SystemFlags;                     /*!< @brief From main.c */
 extern volatile u32 G_u32ApplicationFlags;                /*!< @brief From main.c */
+extern u8 G_au8DebugScanfBuffer[];                        /* from debug.c */
+extern u8 G_u8DebugScanfCharCount;                        /* from debug.c */
 
 
 /***********************************************************************************************************************
@@ -61,6 +63,8 @@ Variable names shall start with "UserApp1_<type>" and be declared as static.
 ***********************************************************************************************************************/
 static fnCode_type UserApp1_pfStateMachine;               /*!< @brief The state machine function pointer */
 //static u32 UserApp1_u32Timeout;                           /*!< @brief Timeout counter used across states */
+
+static u8 au8UserInputBuffer[USER1_INPUT_BUFFER_SIZE];
 
 
 /**********************************************************************************************************************
@@ -92,6 +96,12 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  PWMAudioSetFrequency(BUZZER1, 500);
+  
+  for(u8 i = 0; i < USER1_INPUT_BUFFER_SIZE; i++)
+  {
+    au8UserInputBuffer[i] = 0;
+  }
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -140,7 +150,95 @@ State Machine Function Definitions
 /* What does this state do? */
 static void UserApp1SM_Idle(void)
 {
+  if(G_u8DebugScanfCharCount > 0) {
+    DebugScanf(au8UserInputBuffer);
+    G_au8DebugScanfBuffer[0] = 0;
+    G_u8DebugScanfCharCount = 0;
+  }
+  
+  if(au8UserInputBuffer[0] != 0)
+  {
+    if(au8UserInputBuffer[0] == 'z')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, C3);
+    }
     
+    if(au8UserInputBuffer[0] == 'x')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, D3);
+    }
+    
+    if(au8UserInputBuffer[0] == 'c')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, E3);
+    }
+    
+    if(au8UserInputBuffer[0] == 'v')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, F3);
+    }
+    
+    if(au8UserInputBuffer[0] == 'b')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, G3);
+    }
+    
+    if(au8UserInputBuffer[0] == 'n')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, A4);
+    }
+    
+    if(au8UserInputBuffer[0] == 'm')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, B4);
+    }
+    
+    if(au8UserInputBuffer[0] == 's')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, C3S);
+    }
+    
+    if(au8UserInputBuffer[0] == 'd')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, D3S);
+    }
+    
+    if(au8UserInputBuffer[0] == 'g')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, F3S);
+    }
+    
+    if(au8UserInputBuffer[0] == 'h')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, G3S);
+    }
+    
+    if(au8UserInputBuffer[0] == 'j')
+    {
+      au8UserInputBuffer[0] = 0;
+      PWMAudioSetFrequency(BUZZER1, A4S);
+    }
+  }
+  
+  if(IsButtonPressed(BUTTON0) || IsButtonPressed(BUTTON1) || IsButtonPressed(BUTTON2) || IsButtonPressed(BUTTON3))
+  {
+    PWMAudioOn(BUZZER1);
+  }
+  else
+  {
+    PWMAudioOff(BUZZER1);
+  }
 } /* end UserApp1SM_Idle() */
      
 
