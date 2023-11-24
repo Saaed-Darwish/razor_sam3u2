@@ -92,7 +92,7 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
-  u8 au8SongTitle[] = "Heart and Soul";
+  u8 au8SongTitle[] = "";
   
   LcdCommand(LCD_CLEAR_CMD);
   LcdMessage(LINE1_START_ADDR, au8SongTitle);
