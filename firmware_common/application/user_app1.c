@@ -45,6 +45,7 @@ All Global variable names shall start with "G_<type>UserApp1"
 ***********************************************************************************************************************/
 /* New variables */
 volatile u32 G_u32UserApp1Flags;                          /*!< @brief Global state flags */
+static u8 UserApp_au8MyName[20] = "Saaed Darwish";
 
 
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -92,6 +93,21 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  /*
+  u8 au8Message[] = "Hello World";
+  LcdMessage(LINE1_START_ADDR, au8Message);
+  LcdClearChars(LINE1_START_ADDR + 13, 3);
+  */
+  
+  LcdCommand(LCD_CLEAR_CMD);
+  LcdMessage(LINE1_START_ADDR, UserApp_au8MyName);
+  LcdMessage(LINE2_START_ADDR, "0");
+  LcdMessage(LINE2_START_ADDR + 6, "1");
+  LcdMessage(LINE2_START_ADDR + 13, "2");
+  LcdMessage(LINE2_END_ADDR, "3");
+  
+  LcdCommand(LCD_HOME_CMD);
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -140,7 +156,24 @@ State Machine Function Definitions
 /* What does this state do? */
 static void UserApp1SM_Idle(void)
 {
+    static bool bCursorOn = FALSE;
     
+    if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      
+      if(bCursorOn)
+      {
+        LcdCommand(LCD_DISPLAY_CMD | LCD_DISPLAY_ON);
+        bCursorOn = FALSE;
+      }
+      else 
+      {
+        LcdCommand(LCD_DISPLAY_CMD | LCD_DISPLAY_ON | LCD_DISPLAY_CURSOR | LCD_DISPLAY_BLINK);
+        bCursorOn = TRUE;
+      }
+    }
+       
 } /* end UserApp1SM_Idle() */
      
 
