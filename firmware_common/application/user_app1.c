@@ -45,7 +45,10 @@ All Global variable names shall start with "G_<type>UserApp1"
 ***********************************************************************************************************************/
 /* New variables */
 volatile u32 G_u32UserApp1Flags;                          /*!< @brief Global state flags */
-u32 G_aeSongs;
+
+u8 G_aau8Songs[10][50] = { "Enchanted Love - Linear Ring", "none", "none", "none", "none", "none", "none", "none", "none", "none" };
+u32 G_u32CurrentIndexUserApp1 = 0;
+bool G_bPlaySong = FALSE;
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
@@ -150,107 +153,42 @@ static void UserApp1SM_Error(void)
 {
   static u32 u32MillisecondsPassed = 0;
   
+  if (G_bPlaySong) 
+  {
+    // gameplay goes here
+    G_bPlaySong = FALSE;
+  }
+  
   if ( WasButtonPressed(BUTTON0) ) 
   {
     ButtonAcknowledge(BUTTON0);
-    
+    // exit button for later
   }
   if ( WasButtonPressed(BUTTON1) ) 
   {
     ButtonAcknowledge(BUTTON1);
     
-    if(G_bSetPassword == TRUE) 
-    {
-      G_aePasswordUserApp1[G_u8CurrentIndexUserApp1] = B1;
-      G_u8CurrentIndexUserApp1++;
-    }
-    else
-    {
-      G_aeEnteredPassword[G_u8CurrentIndexUserApp1] = B1;
-      G_u8CurrentIndexUserApp1++;
-    }
+    // move current song selection left
   }
   if ( WasButtonPressed(BUTTON2) ) 
   {
     ButtonAcknowledge(BUTTON2);
     
-    if(G_bSetPassword == TRUE) 
-    {
-      G_aePasswordUserApp1[G_u8CurrentIndexUserApp1] = B2;
-      G_u8CurrentIndexUserApp1++;
-    }
-    else
-    {
-      G_aeEnteredPassword[G_u8CurrentIndexUserApp1] = B2;
-      G_u8CurrentIndexUserApp1++;
-    }
+    // move current song selection right
   }
   
   if( WasButtonPressed(BUTTON3) ) 
   {
     ButtonAcknowledge(BUTTON3);
     
-    if(G_bSetPassword == TRUE)
-    {
-      G_bSetPassword = FALSE;
-      G_u8CurrentIndexUserApp1 = 0;
-      LedOff(YELLOW);
-      LedOff(GREEN);
-      return;
-    }
-    
-    if(u32MillisecondsPassed < 3000) 
-    {
-      LedBlink(YELLOW, LED_2HZ);
-      for(int i = 0; i < 10; i++)
-      {
-        G_aePasswordUserApp1[i] = none;
-      }
-      G_u8CurrentIndexUserApp1 = 0;
-      G_bSetPassword = TRUE;
-    }
+    // start game for the current selected song
       
-    bool bPasswordCheck = TRUE;
-       
-    for(int i = 0; i < 10; i++)
-    {
-      if(G_aeEnteredPassword[i] != G_aePasswordUserApp1[i])
-      {
-        bPasswordCheck = FALSE;
-      }
-    }
-    
-    if(bPasswordCheck) 
-    {
-      LedBlink(GREEN, LED_2HZ);
-      LedOff(RED);
-      G_u8CurrentIndexUserApp1 = 0;
-      for(int i = 0; i < 10; i++)
-      {
-        G_aeEnteredPassword[i] = none;
-      }
-    }
-    else
-    {
-      LedBlink(RED, LED_2HZ);
-      LedOff(GREEN);
-      G_u8CurrentIndexUserApp1 = 0;
-      for(int i = 0; i < 10; i++)
-      {
-        G_aeEnteredPassword[i] = none;
-      }
-    }
+    G_bPlaySong = TRUE;
   }
   
-  if(G_u8CurrentIndexUserApp1 == 10) 
+  if(G_u32CurrentIndexUserApp1 == 10) 
   {
-    LedBlink(RED, LED_2HZ);
-    LedOff(GREEN);
-    G_u8CurrentIndexUserApp1 = 0;
-    for(int i = 0; i < 10; i++)
-    {
-      G_aeEnteredPassword[i] = none;
-    }
+    G_u32CurrentIndexUserApp1 = 0;
   }
   
   u32MillisecondsPassed++;
