@@ -28,7 +28,7 @@ TYPES
 - NONE
 
 PUBLIC FUNCTIONS
-- NONE
+- void shiftLeft(char* line)
 
 PROTECTED FUNCTIONS
 - void UserApp1Initialize(void)
@@ -93,6 +93,9 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
+  LcdCommand(LCD_CLEAR_CMD);
+  LcdMessage(LINE1_START_ADDR, G_aau8Songs[G_u32CurrentIndexUserApp1]);
+  LcdMessage(LINE2_START_ADDR, "      <-    -> start");
   /* If good initialization, set state to Idle */
   if (1)
   {
@@ -141,70 +144,19 @@ static void UserApp1SM_Idle(void)
   static u32 u32MillisecondsPassed = 0;
   static u8 u8IndexLeft = 0;
   static u8 u8IndexRight = 0;
-
-  if (G_bPlaySong)
-  {
-    u8IndexLeft = 0; // restart song
-    u8IndexRight = 0; // restart song
-    // gameplay goes here
-    LedOn(BLUE);
-    if(u32MillisecondsPassed == 5000) {
-      G_bPlaySong = FALSE;
-      u32MillisecondsPassed = 0;
-      LedOff(BLUE);
-    }
-  }
-
-  if (WasButtonPressed(BUTTON0))
-  {
-    ButtonAcknowledge(BUTTON0);
-    // exit button for later
-  }
-  if (WasButtonPressed(BUTTON1))
-  {
-    ButtonAcknowledge(BUTTON1);
-
-    // move current song selection left
-  }
-  if (WasButtonPressed(BUTTON2))
-  {
-    ButtonAcknowledge(BUTTON2);
-
-    // move current song selection right
-  }
-
-  if (WasButtonPressed(BUTTON3))
-  {
-    ButtonAcknowledge(BUTTON3);
-
-    // start game for the current selected song
-
-    G_bPlaySong = TRUE;
-  }
-
-  if (G_u32CurrentIndexUserApp1 == 10)
-  {
-    G_u32CurrentIndexUserApp1 = 0;
-  }
   
-  if(u32MillisecondsPassed == 4294967295) {
-    u32MillisecondsPassed = 0;
-  }
-  
-  u32MillisecondsPassed++;
-  
-  static u16 au16NotesRightEL[] =    {B4, C3, E3, G3, B4, E5, D5, B4};
-  static u16 au16DurationRightEL[] = {QN, EN, QN, QN, EN, QN, EN, QN};
-  static u16 au16NoteTypeRightEL[] = {RT, RT, RT, ST, RT, RT, RT, RT};
+  static u16 au16NotesRightEL[] = {C5, E5, G5, A5, G5, E5, C5, D5, E5, F5, E5, D5, C5, C5, D5, E5, F5, G5, A5, G5, F5, E5, D5, C5};
+  static u16 au16DurationRightEL[] = {EN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, QN};
+  static u16 au16NoteTypeRightEL[] = {RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT};
+
+  static u16 au16NotesLeftEL[] = {C4, G3, C4, F3, A3, F3, C4, G3};
+  static u16 au16DurationLeftEL[] = {HN, HN, HN, HN, HN, HN, HN, HN};
+  static u16 au16NoteTypeLeftEL[] = {RT, RT, RT, RT, RT, RT, RT, RT};
 
   static u32 u32RightTimer = 0;
   static u16 u16CurrentDurationRight = 0;
   static u16 u16NoteSilentDurationRight = 0;
   static bool bNoteActiveRight = TRUE;
-
-  static u16 au16NotesLeftEL[] =    {A3, A3};
-  static u16 au16DurationLeftEL[] = {FN, FN};
-  static u16 au16NoteTypeLeftEL[] = {ST, ST};
 
   static u32 u32LeftTimer = 0;
   static u16 u16CurrentDurationLeft = 0;
@@ -213,9 +165,9 @@ static void UserApp1SM_Idle(void)
 
   u8 u8CurrentIndex;
   
-  static uint16_t au16EmptyNotes[] = {};
-  static uint16_t au16EmptyDuration[] = {};
-  static uint16_t au16EmptyNoteType[] = {};
+  static uint16_t au16EmptyNotes[] = {NO};
+  static uint16_t au16EmptyDuration[] = {QN};
+  static uint16_t au16EmptyNoteType[] = {RT};
 
   uint16_t *au16NotesLeft;
   uint16_t *au16DurationLeft;
@@ -227,6 +179,12 @@ static void UserApp1SM_Idle(void)
   
   u16 u16SizeNotesRight = 0;
   u16 u16SizeNotesLeft = 0;
+  
+  static u16 u16NoteMoveInterval;
+  static u32 u32CurrentInterval;
+  
+  char* line1;
+  char* line2;
 
   if(G_u32CurrentIndexUserApp1 == 0) {
     au16NotesLeft = au16NotesLeftEL;
@@ -240,7 +198,7 @@ static void UserApp1SM_Idle(void)
     au16NoteTypeRight = au16NoteTypeRightEL;
     
     u16SizeNotesRight = sizeof(au16NotesRightEL);
-} else {
+  } else {
     au16NotesLeft = au16EmptyNotes;
     au16DurationLeft = au16EmptyDuration;
     au16NoteTypeLeft = au16EmptyNoteType;
@@ -252,7 +210,146 @@ static void UserApp1SM_Idle(void)
     au16NoteTypeRight = au16EmptyNoteType;
     
     u16SizeNotesRight = 0;
-}
+  }
+
+  static bool bResetDone = FALSE;
+
+  if (G_bPlaySong)
+  {
+    if (!bResetDone)
+    {
+      u8IndexLeft = 0;
+      u8IndexRight = 0;
+      u32RightTimer = G_u32SystemTime1ms;
+      u32LeftTimer = G_u32SystemTime1ms;
+      u16CurrentDurationRight = 0;
+      u16CurrentDurationLeft = 0;
+      u16NoteSilentDurationRight = 0;
+      u16NoteSilentDurationLeft = 0;
+      bNoteActiveRight = TRUE;
+      bNoteActiveLeft = TRUE;
+      PWMAudioOff(BUZZER1);
+      PWMAudioOff(BUZZER2);
+      u32MillisecondsPassed = 0;
+      
+      // initialize gameplay string
+      if(G_u32CurrentIndexUserApp1 == 0) {
+        char line1[] = "               -  -   -     *        *  *   *       *      ";
+        char line2[] = "                             *      * *               *    ";
+        u16NoteMoveInterval= 1000;
+        u32CurrentInterval= 0;
+      }
+      
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, line1);
+      LcdMessage(LINE2_START_ADDR, line2);
+    
+      bResetDone = TRUE;
+    }
+    
+    // gameplay goes here
+    LedOn(BLUE);
+    if(u32CurrentInterval+ u16NoteMoveInterval< u32MillisecondsPassed) {
+      int len = strlen(line1);
+      for (int i = 1; i < len; i++) {
+          line1[i-1] = line1[i];
+      }
+      line1[len-1] = ' ';
+      
+      len = strlen(line2);
+      for (int i = 1; i < len; i++) {
+          line2[i-1] = line2[i];
+      }
+      line2[len-1] = ' ';
+      
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, line1);
+      LcdMessage(LINE2_START_ADDR, line2);
+      
+      u32CurrentInterval= u32MillisecondsPassed;
+    }
+    
+    if(u32MillisecondsPassed >= 5000) {
+      G_bPlaySong = FALSE;
+      u32MillisecondsPassed = 0;
+      LedOff(BLUE);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, G_aau8Songs[G_u32CurrentIndexUserApp1]);
+      LcdMessage(LINE2_START_ADDR, "      <-    -> start");
+      bResetDone = FALSE;
+    }
+  }
+
+
+  if (WasButtonPressed(BUTTON0) && G_bPlaySong == FALSE)
+  {
+    ButtonAcknowledge(BUTTON0);
+    // idk yet
+  }
+  if (WasButtonPressed(BUTTON1) && G_bPlaySong == FALSE)
+  {
+    ButtonAcknowledge(BUTTON1);
+    u8IndexLeft = 0;
+    u8IndexRight = 0;
+    u32RightTimer = G_u32SystemTime1ms;
+    u32LeftTimer = G_u32SystemTime1ms;
+    u16CurrentDurationRight = 0;
+    u16CurrentDurationLeft = 0;
+    u16NoteSilentDurationRight = 0;
+    u16NoteSilentDurationLeft = 0;
+    bNoteActiveRight = TRUE;
+    bNoteActiveLeft = TRUE;
+    PWMAudioOff(BUZZER1);
+    PWMAudioOff(BUZZER2);
+    // move current song selection left
+    G_u32CurrentIndexUserApp1--;
+    if(G_u32CurrentIndexUserApp1 == -1) {
+      G_u32CurrentIndexUserApp1 = 9;
+    }
+    LcdCommand(LCD_CLEAR_CMD);
+    LcdMessage(LINE1_START_ADDR, G_aau8Songs[G_u32CurrentIndexUserApp1]);
+    LcdMessage(LINE2_START_ADDR, "      <-    -> start");
+  }
+  if (WasButtonPressed(BUTTON2) && G_bPlaySong == FALSE)
+  {
+    ButtonAcknowledge(BUTTON2);
+    u8IndexLeft = 0;
+    u8IndexRight = 0;
+    u32RightTimer = G_u32SystemTime1ms;
+    u32LeftTimer = G_u32SystemTime1ms;
+    u16CurrentDurationRight = 0;
+    u16CurrentDurationLeft = 0;
+    u16NoteSilentDurationRight = 0;
+    u16NoteSilentDurationLeft = 0;
+    bNoteActiveRight = TRUE;
+    bNoteActiveLeft = TRUE;
+    PWMAudioOff(BUZZER1);
+    PWMAudioOff(BUZZER2);
+    // move current song selection right
+    G_u32CurrentIndexUserApp1++;
+    if(G_u32CurrentIndexUserApp1 == 10) {
+      G_u32CurrentIndexUserApp1 = 0;
+    }
+    LcdCommand(LCD_CLEAR_CMD);
+    LcdMessage(LINE1_START_ADDR, G_aau8Songs[G_u32CurrentIndexUserApp1]);
+    LcdMessage(LINE2_START_ADDR, "      <-    -> start");
+  }
+
+  if (WasButtonPressed(BUTTON3) && G_bPlaySong == FALSE)
+  {
+    ButtonAcknowledge(BUTTON3);
+
+    // start game for the current selected song
+
+    G_bPlaySong = TRUE;
+  }
+  
+  if(u32MillisecondsPassed == 4294967295) {
+    u32MillisecondsPassed = 0;
+  }
+  
+  u32MillisecondsPassed++;
+  
   // RIGHT HAND
   if (IsTimeUp(&u32RightTimer, (u32)u16CurrentDurationRight))
   {
