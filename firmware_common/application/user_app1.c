@@ -147,10 +147,11 @@ static void UserApp1SM_Idle(void)
     u8IndexLeft = 0; // restart song
     u8IndexRight = 0; // restart song
     // gameplay goes here
-    LedOn(BLUE)
+    LedOn(BLUE);
     if(u32MillisecondsPassed == 5000) {
       G_bPlaySong = FALSE;
       u32MillisecondsPassed = 0;
+      LedOff(BLUE);
     }
   }
 
