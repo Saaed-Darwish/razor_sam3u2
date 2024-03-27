@@ -47,8 +47,13 @@ All Global variable names shall start with "G_<type>UserApp1"
 volatile u32 G_u32UserApp1Flags; /*!< @brief Global state flags */
 
 u8 G_aau8Songs[10][50] = {"Sunrise - chatGPT", "none", "none", "none", "none", "none", "none", "none", "none", "none"};
-u32 G_u32CurrentIndexUserApp1 = 0;
-bool G_bPlaySong = FALSE;
+static u32 G_u32CurrentIndexUserApp1 = 0;
+static bool G_bPlaySong = FALSE;
+u8 G_au8Line1SR[] = "      *  *   *     *        *  *   *       *      *";
+u8 G_au8Line2SR[] = "                    *      * *               *    *";
+u8 u8perfect = 'o';
+u8 u8good = '.';
+u8 u8miss = 'X';
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
@@ -148,13 +153,13 @@ static void UserApp1SM_Idle(void)
   static u8 u8IndexLeft = 0;
   static u8 u8IndexRight = 0;
   
-  static u16 au16NotesRightEL[] = {C5, E5, G5, A5, G5, E5, C5, D5, E5, F5, E5, D5, C5, C5, D5, E5, F5, G5, A5, G5, F5, E5, D5, C5};
-  static u16 au16DurationRightEL[] = {EN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, QN};
-  static u16 au16NoteTypeRightEL[] = {RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT};
+  static u16 au16NotesRightSR[] = {C5, E5, G5, A5, G5, E5, C5, D5, E5, F5, E5, D5, C5, C5, D5, E5, F5, G5, A5, G5, F5, E5, D5, C5};
+  static u16 au16DurationRightSR[] = {EN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, EN, QN, EN, EN, EN, EN, QN};
+  static u16 au16NoteTypeRightSR[] = {RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT};
 
-  static u16 au16NotesLeftEL[] = {C4, G3, C4, F3, A3, F3, C4, G3};
-  static u16 au16DurationLeftEL[] = {HN, HN, HN, HN, HN, HN, HN, HN};
-  static u16 au16NoteTypeLeftEL[] = {RT, RT, RT, RT, RT, RT, RT, RT};
+  static u16 au16NotesLeftSR[] = {C4, G3, C4, F3, A3, F3, C4, G3};
+  static u16 au16DurationLeftSR[] = {HN, HN, HN, HN, HN, HN, HN, HN};
+  static u16 au16NoteTypeLeftSR[] = {RT, RT, RT, RT, RT, RT, RT, RT};
 
   static u32 u32RightTimer = 0;
   static u16 u16CurrentDurationRight = 0;
@@ -188,19 +193,33 @@ static void UserApp1SM_Idle(void)
   
   u8 *au8line1;
   u8 *au8line2;
-
+  
+  static u8 line1[] = "                    ";
+  static u8 line2[] = "                    ";
+  static u8 line1SR[] = "      *  *   *     *        *  *   *       *      *";
+  static u8 line2SR[] = "                    *      * *               *    *";
+  
+  static bool bMissRedOn = FALSE;
+  static bool bPerfectGreenOn = FALSE;
+  static bool bGoodYellowOn = FALSE;
+  
+  static u8 au8star[] = "*";
+  static u8 au8space[] = " ";
+  
+  static int length;
+  
   if(G_u32CurrentIndexUserApp1 == 0) {
-    au16NotesLeft = au16NotesLeftEL;
-    au16DurationLeft = au16DurationLeftEL;
-    au16NoteTypeLeft = au16NoteTypeLeftEL;
+    au16NotesLeft = au16NotesLeftSR;
+    au16DurationLeft = au16DurationLeftSR;
+    au16NoteTypeLeft = au16NoteTypeLeftSR;
     
-    u16SizeNotesLeft = sizeof(au16NotesLeftEL);
+    u16SizeNotesLeft = sizeof(au16NotesLeftSR);
     
-    au16NotesRight = au16NotesRightEL;
-    au16DurationRight = au16DurationRightEL;
-    au16NoteTypeRight = au16NoteTypeRightEL;
+    au16NotesRight = au16NotesRightSR;
+    au16DurationRight = au16DurationRightSR;
+    au16NoteTypeRight = au16NoteTypeRightSR;
     
-    u16SizeNotesRight = sizeof(au16NotesRightEL);
+    u16SizeNotesRight = sizeof(au16NotesRightSR);
   } else {
     au16NotesLeft = au16EmptyNotes;
     au16DurationLeft = au16EmptyDuration;
@@ -219,7 +238,6 @@ static void UserApp1SM_Idle(void)
 
   if (G_bPlaySong)
   {
-    static int len;
     if (!bResetDone)
     {
       u8IndexLeft = 0;
@@ -237,52 +255,84 @@ static void UserApp1SM_Idle(void)
       PWMAudioOff(BUZZER2);
       u32MillisecondsPassed = 0;
       
-      // initialize gameplay string
       if(G_u32CurrentIndexUserApp1 == 0) {
-        u8 line1[] = "               *  *   *     *        *  *   *       *      ";
-        u8 line2[] = "                             *      * *               *    ";
+        au8line1 = line1SR;
+        au8line2 = line2SR;
+        length = sizeof(line1SR) / sizeof(line1SR[0]);
+        u16NoteMoveInterval = 350;
+        u32CurrentInterval = 0;
+      } else {
         au8line1 = line1;
         au8line2 = line2;
-        len = 59;
-        u16NoteMoveInterval= 350;
-        u32CurrentInterval= 0;
-      } else {
-        au8line1 = "                    ";
-        au8line2 = "                    ";
-        len = 20;
+        length = sizeof(line1) / sizeof(line1[0]);
       }
+      
+      u8 temp1 = au8line1[20];
+      u8 temp2 = au8line2[20];
+      au8line1[20] = '\0';
+      au8line2[20] = '\0';
       
       LcdCommand(LCD_CLEAR_CMD);
       LcdMessage(LINE1_START_ADDR, au8line1);
       LcdMessage(LINE2_START_ADDR, au8line2);
+      
+      au8line1[20] = temp1;
+      au8line2[20] = temp2;
     
       bResetDone = TRUE;
     }
     
     // gameplay goes here
     LedOn(BLUE);
-    if(u32CurrentInterval+ u16NoteMoveInterval< u32MillisecondsPassed) {
-      for (int i = 1; i < len; i++) {
-          au8line1[i-1] = au8line1[i];
+    if(u32CurrentInterval + u16NoteMoveInterval < u32MillisecondsPassed) {
+      if(bMissRedOn) {
+        LedOff(RED);
+        bMissRedOn = FALSE;
       }
-      au8line1[len-1] = ' ';
-      
-      for (int i = 1; i < len; i++) {
+      if(bPerfectGreenOn) {
+        LedOff(GREEN);
+        bPerfectGreenOn = FALSE;
+      }
+      if(bGoodYellowOn) {
+        LedOff(YELLOW);
+        bGoodYellowOn = FALSE;
+      }
+      if(au8line1[0] == au8star[0] || au8line2[0] == au8star[0]) {
+        LedOn(RED);
+        bMissRedOn = TRUE;
+      }
+      for (int i = 1; i < length; i++) {
+          au8line1[i-1] = au8line1[i];
           au8line2[i-1] = au8line2[i];
       }
-      au8line2[len-1] = ' ';
+      au8line1[length - 1] = au8space[0];
+      au8line2[length - 1] = au8space[0];
       
+      u8 temp1 = au8line1[20];
+      u8 temp2 = au8line2[20];
+      au8line1[20] = '\0';
+      au8line2[20] = '\0';
+
       LcdCommand(LCD_CLEAR_CMD);
       LcdMessage(LINE1_START_ADDR, au8line1);
       LcdMessage(LINE2_START_ADDR, au8line2);
+
+      au8line1[20] = temp1;
+      au8line2[20] = temp2;
       
-      u32CurrentInterval= u32MillisecondsPassed;
+      u32CurrentInterval = u32MillisecondsPassed;
     }
     
     if(u32MillisecondsPassed >= 10000) {
       G_bPlaySong = FALSE;
       u32MillisecondsPassed = 0;
       LedOff(BLUE);
+      LedOff(GREEN);
+      LedOff(YELLOW);
+      LedOff(RED);
+      bMissRedOn = FALSE;
+      bPerfectGreenOn = FALSE;
+      bGoodYellowOn = FALSE;
       u8IndexLeft = 0;
       u8IndexRight = 0;
       u8CurrentIndex = 0;
@@ -296,7 +346,10 @@ static void UserApp1SM_Idle(void)
       bNoteActiveLeft = FALSE;
       PWMAudioOff(BUZZER1);
       PWMAudioOff(BUZZER2);
-      songDisplay = G_aau8Songs[G_u32CurrentIndexUserApp1];
+      if(G_u32CurrentIndexUserApp1 == 0) {
+          memcpy(line1SR, G_au8Line1SR, sizeof(line1SR));
+          memcpy(line2SR, G_au8Line2SR, sizeof(line2SR));
+      }
       LcdCommand(LCD_CLEAR_CMD);
       LcdMessage(LINE1_START_ADDR, songDisplay);
       LcdMessage(LINE2_START_ADDR, controlsDisplay);
@@ -308,7 +361,6 @@ static void UserApp1SM_Idle(void)
   if (WasButtonPressed(BUTTON0) && G_bPlaySong == FALSE)
   {
     ButtonAcknowledge(BUTTON0);
-    // idk yet
   }
   if (WasButtonPressed(BUTTON1) && G_bPlaySong == FALSE)
   {
