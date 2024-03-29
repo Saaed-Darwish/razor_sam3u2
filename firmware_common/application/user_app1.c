@@ -46,18 +46,23 @@ All Global variable names shall start with "G_<type>UserApp1"
 /* New variables */
 volatile u32 G_u32UserApp1Flags; /*!< @brief Global state flags */
 
-u8 G_aau8Songs[10][50] = {"Gentle (Tutorial)", "Sunrise", "Forgotten Shadows", "Mystic Dream", "Castle Abyss", "none", "none", "none", "none", "none"};
+u8 G_aau8Songs[10][21] = {"Gentle (Tutorial)", "Sunrise", "Forgotten Shadows", "Mystic Dream", "Castle Abyss", "Horizons", "Veil", "none", "none", "none"};
 static u32 G_u32CurrentIndexUserApp1 = 0;
 bool G_bPlaySong = FALSE;
 bool G_bShowScore = FALSE;
+
+u8 G_au8Line1VE[] = "  ****    ****   ***    ******   * *";
+u8 G_au8Line2VE[] = "      ****    ***   ****  *  * *****";
+u8 G_au8Line1HO[] = "  **  **   ***** *  ****        **    *";
+u8 G_au8Line2HO[] = "    **  *** *   ***      ****   **    *";
 u8 G_au8Line1CA[] = "    * * * *        * * * * ****  *    * *   *";
 u8 G_au8Line2CA[] = "    * * * * * * * ** * * *   *  ****   * *  *";
 u8 G_au8Line1SR[] = "      *  *   *     *        *  *   *       *      *";
 u8 G_au8Line2SR[] = "                    *      * *               *    *";
 u8 G_au8Line1FS[] = "  *  *  *  *  * *  *  *  ***   **  *  *   *  *  * *";
 u8 G_au8Line2FS[] = "    *  *  *     *    *  *    **   **  *  *  *  *  *";
-u8 G_au8Line1MD[] = "  *  *  *  *  * *  *  *  ***   **  *  *   *  *  * *";
-u8 G_au8Line2MD[] = "    *  *  *     *    *  *    **   **  *  *  *  *  *";
+u8 G_au8Line1MD[] = "  *  *  *  *  * *  *  * * *   * * * *   * * * *** **";
+u8 G_au8Line2MD[] = "    *  *  *     *     * * *    **  * * * * ***  *  *";
 u8 G_au8Line1TUT[] = "       *      *       *                           *             *";
 u8 G_au8Line2TUT[] = "                             *      *      *            *       *";
 u8 G_au8Line1[] = "                    ";
@@ -210,28 +215,22 @@ static void UserApp1SM_Idle(void)
   };
   
   static u16 au16NotesRightTUT[] = {
-    C4, NO, NO, NO, E4, NO, NO, NO, G4, NO, NO, NO, E4, NO, NO, NO,
-    C4, NO, NO, NO, G3, NO, NO, NO, C4, NO, NO, NO, NO, NO, NO, NO
+    C4, NO, NO, NO, E4, NO, NO, NO, G4, NO, NO, NO, E4, NO, NO, NO
   };
   static u16 au16DurationRightTUT[] = {
-    EN, QN, QN, QN, EN, QN, QN, QN, EN, QN, QN, QN, EN, QN, QN, QN,
-    EN, QN, QN, QN, EN, QN, QN, QN, EN, QN, QN, QN, QN, QN, QN, FN
+    EN, QN, QN, QN, EN, QN, QN, QN, EN, QN, QN, QN, EN, QN, QN, QN
   };
   static u16 au16NoteTypeRightTUT[] = {
-    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
     RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
   };
   
   static u16 au16NotesLeftTUT[] = {
-    C3, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO,
-    G3, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO, NO
+    C3, NO, NO, NO, NO, NO, NO, G3, NO, NO, NO, NO, NO, NO, NO, NO
   };
   static u16 au16DurationLeftTUT[] = {
-    EN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN,
-    EN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, FN
+    EN, QN, QN, QN, QN, QN, QN, EN, QN, QN, QN, QN, QN, QN, QN, QN
   };
   static u16 au16NoteTypeLeftTUT[] = {
-      RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
       RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
   };
   
@@ -265,6 +264,58 @@ static void UserApp1SM_Idle(void)
     RT, RT, RT, RT, RT, RT, RT,
     RT, RT, RT, RT, RT, RT, RT, RT, RT,
     RT, RT, RT, RT, RT, RT, RT
+  };
+  
+  static u16 au16NotesRightHO[] = {
+    C4, E3, G4, C4, E5, G4, C6, D6, E3, G4, A6, G6, E4, D3, C4, B5,
+    A5, G4, E3, D3, C3, B4, A4, G4, F5, E5, D5, C3, E4, G5, A4, G4
+  };
+  static u16 au16DurationRightHO[] = {
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN,
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, HN
+  };
+  static u16 au16NoteTypeRightHO[] = {
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
+  };
+  
+  static u16 au16NotesLeftHO[] = {
+    C3, G3, C4, E3, A3, E4, A3, D3, G3, D4, G3, C3, F3, C4, F3, B3,
+    E3, A3, E4, A3, D3, G3, D4, G3, C3, G3, E3, G3, A3, C4, G3, C4
+  };
+  static u16 au16DurationLeftHO[] = {
+    QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN,
+    QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, QN, HN
+  };
+  static u16 au16NoteTypeLeftHO[] = {
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
+  };
+  
+  static u16 au16NotesRightVE[] = {
+    E4, G4, B4, A4, G4, E4, D4, E4, B4, A4, G4, F4S, E4, D4, C4S, D4,
+    E4, G4, B4, C5, B4, A4, G4, F4S, E4, D4, C4S, B4, A4, G4, F4S, E4
+  };
+  static u16 au16DurationRightVE[] = {
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN,
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, HN
+  };
+  static u16 au16NoteTypeRightVE[] = {
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
+  };
+  
+  static u16 au16NotesLeftVE[] = {
+    E4, G4, B4, A4, E4, D4, G3, A3, E3, A3, D4, G3, B3, E3, G3, B3,
+    E4, G4, B4, C4, E4, A3, E3, A3, D4, G3, B3, E3, A3, D3, G3, E3
+  };
+  static u16 au16DurationLeftVE[] = {
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN,
+    EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, EN, HN
+  };
+  static u16 au16NoteTypeLeftVE[] = {
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT,
+    RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT, RT
   };
 
   static u32 u32RightTimer = 0;
@@ -302,16 +353,20 @@ static void UserApp1SM_Idle(void)
   
   static u8 line1[] = "                    ";
   static u8 line2[] = "                    ";
+  static u8 line1HO[] = "  **  **   ***** *  ****        **    *";
+  static u8 line2HO[] = "    **  *** *   ***      ****   **    *";
   static u8 line1SR[] = "      *  *   *     *        *  *   *       *      *";
   static u8 line2SR[] = "                    *      * *               *    *";
   static u8 line1FS[] = "  *  *  *  *  * *  *  *  ***   **  *  *   *  *  * *";
   static u8 line2FS[] = "    *  *  *     *    *  *    **   **  *  *  *  *  *";
-  static u8 line1MD[] = "  *  *  *  *  * *  *  *  ***   **  *  *   *  *  * *";
-  static u8 line2MD[] = "    *  *  *     *    *  *    **   **  *  *  *  *  *";
+  static u8 line1MD[] = "  *  *  *  *  * *  *  * * *   * * * *   * * * *** **";
+  static u8 line2MD[] = "    *  *  *     *     * * *    **  * * * * ***  *  *";
   static u8 line1TUT[] = "       *      *       *                           *             *";
   static u8 line2TUT[] = "                             *      *      *            *       *";
   static u8 line1CA[] = "    * * * *        * * * * ****  *    * *   *";
   static u8 line2CA[] = "    * * * * * * * ** * * *   *  ****   * *  *";
+  static u8 line1VE[] = "  ****    ****   ***    ******   * *";
+  static u8 line2VE[] = "      ****    ***   ****  *  * *****";
   static u32 u32GameEndMS;
   
   static bool bTutorial = FALSE;
@@ -499,6 +554,34 @@ static void UserApp1SM_Idle(void)
     u16SizeNotesRight = sizeof(au16NotesRightCA);
     
     u32GameEndMS = 20000;
+  } else if(G_u32CurrentIndexUserApp1 == 5) {
+    au16NotesLeft = au16NotesLeftHO;
+    au16DurationLeft = au16DurationLeftHO;
+    au16NoteTypeLeft = au16NoteTypeLeftHO;
+    
+    u16SizeNotesLeft = sizeof(au16NotesLeftHO);
+    
+    au16NotesRight = au16NotesRightHO;
+    au16DurationRight = au16DurationRightHO;
+    au16NoteTypeRight = au16NoteTypeRightHO;
+    
+    u16SizeNotesRight = sizeof(au16NotesRightHO);
+    
+    u32GameEndMS = 12000;
+  } else if(G_u32CurrentIndexUserApp1 == 6) {
+    au16NotesLeft = au16NotesLeftVE;
+    au16DurationLeft = au16DurationLeftVE;
+    au16NoteTypeLeft = au16NoteTypeLeftVE;
+    
+    u16SizeNotesLeft = sizeof(au16NotesLeftVE);
+    
+    au16NotesRight = au16NotesRightVE;
+    au16DurationRight = au16DurationRightVE;
+    au16NoteTypeRight = au16NoteTypeRightVE;
+    
+    u16SizeNotesRight = sizeof(au16NotesRightVE);
+    
+    u32GameEndMS = 10000;
   } else {
     au16NotesLeft = au16EmptyNotes;
     au16DurationLeft = au16EmptyDuration;
@@ -521,54 +604,117 @@ static void UserApp1SM_Idle(void)
   if (G_bPlaySong && bTutorial) {
     if(intTUTStep == 0) {
       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, "o                   ");
+      LcdMessage(LINE1_START_ADDR, "stars will shift    ");
+      LcdMessage(LINE2_START_ADDR, "left on the display ");
+      intTUTStep++;
+    } else if(intTUTStep < 2000) {
+      intTUTStep++;
+    } else if(intTUTStep == 2000) {
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "there are two   ");
+      LcdMessage(LINE2_START_ADDR, "lanes for stars ");
+      intTUTStep++;
+    } else if(intTUTStep < 4000) {
+      intTUTStep++;
+    } else if(intTUTStep == 4000) {
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "----top lane----");
+      LcdMessage(LINE2_START_ADDR, "----bot lane----");
+      intTUTStep++;
+    } else if(intTUTStep < 6000) {
+      intTUTStep++;
+    } else if(intTUTStep == 6000) {
+      LedOn(GREEN);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "|when they reach the");
+      LcdMessage(LINE2_START_ADDR, "|leftmost pixel     ");
+      intTUTStep++;
+    } else if(intTUTStep < 8000) {
+      intTUTStep++;
+    } else if(intTUTStep == 8000) {
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "then buttons must   ");
+      LcdMessage(LINE2_START_ADDR, "be pressed          ");
+      intTUTStep++;
+    } else if(intTUTStep < 10000) {
+      intTUTStep++;
+    } else if(intTUTStep == 10000) {
+      LedOn(GREEN);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "o.xx   o is perfect ");
+      LcdMessage(LINE2_START_ADDR, "o.xx   o is perfect ");
+      intTUTStep++;
+    } else if(intTUTStep < 12000) {
+      intTUTStep++;
+    } else if(intTUTStep == 12000) {
+      LedOff(GREEN);
+      LedOn(YELLOW);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "o.xx   . is good    ");
+      LcdMessage(LINE2_START_ADDR, "o.xx   . is good    ");
+      intTUTStep++;
+    } else if(intTUTStep < 14000) {
+      intTUTStep++;
+    } else if(intTUTStep == 14000) {
+      LedOff(YELLOW);
+      LedOn(RED);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "o.xx   x is miss    ");
+      LcdMessage(LINE2_START_ADDR, "o.xx   x is miss    ");
+      intTUTStep++;
+    } else if(intTUTStep < 16000) {
+      intTUTStep++;
+    } else if(intTUTStep == 16000) {
+      LedOff(RED);
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "*  <- *    push B0  ");
       LcdMessage(LINE2_START_ADDR, "top ---      --- ---");
       intTUTStep++;
-    } else if(intTUTStep == 1) {
+    } else if(intTUTStep == 16001) {
       if (WasButtonPressed(BUTTON0))
       {
         ButtonAcknowledge(BUTTON0);
         intTUTStep++;
       }
-    } else if(intTUTStep == 2) {
+    } else if(intTUTStep == 16002) {
       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, "o                   ");
+      LcdMessage(LINE1_START_ADDR, "*         B1 is same");
       LcdMessage(LINE2_START_ADDR, "--- top      --- ---");
       intTUTStep++;
-    } else if(intTUTStep == 3) {
+    } else if(intTUTStep == 16003) {
       if (WasButtonPressed(BUTTON1))
       {
         ButtonAcknowledge(BUTTON1);
         intTUTStep++;
       }
-    } else if(intTUTStep == 4) {
+    } else if(intTUTStep == 16004) {
       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, "                    ");
-      LcdMessage(LINE2_START_ADDR, "o            bot ---");
+      LcdMessage(LINE1_START_ADDR, " push B2 star on o ");
+      LcdMessage(LINE2_START_ADDR, "*  <- *     bot ---");
       intTUTStep++;
-    } else if(intTUTStep == 5) {
+    } else if(intTUTStep == 16005) {
       if (WasButtonPressed(BUTTON2))
       {
         ButtonAcknowledge(BUTTON2);
         intTUTStep++;
       }
-    } else if(intTUTStep == 6) {
+    } else if(intTUTStep == 16006) {
       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, "                    ");
-      LcdMessage(LINE2_START_ADDR, "o            --- bot");
+      LcdMessage(LINE1_START_ADDR, " either B3 or B2    ");
+      LcdMessage(LINE2_START_ADDR, "*            --- bot");
       intTUTStep++;
-    } else if(intTUTStep == 7) {
+    } else if(intTUTStep == 16007) {
       if (WasButtonPressed(BUTTON3))
       {
         ButtonAcknowledge(BUTTON3);
         intTUTStep++;
       }
-    } else if(intTUTStep == 8) {
+    } else if(intTUTStep == 16008) {
       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, "Starting Game...    ");
+      LcdMessage(LINE1_START_ADDR, "Starting Gentle...    ");
       LcdMessage(LINE2_START_ADDR, "Tutorial Complete   ");
       intTUTStep++;
-    } else if(intTUTStep < 1000) {
+    } else if(intTUTStep < 17000) {
       intTUTStep++;
     } else {
       bTutorial = FALSE;
@@ -603,6 +749,16 @@ static void UserApp1SM_Idle(void)
       au8line2 = line2CA;
       length = sizeof(line1CA) / sizeof(line1CA[0]);
       u16NoteMoveInterval = 350;
+    } else if(G_u32CurrentIndexUserApp1 == 5) {
+      au8line1 = line1HO;
+      au8line2 = line2HO;
+      length = sizeof(line1HO) / sizeof(line1HO[0]);
+      u16NoteMoveInterval = 200;
+    } else if(G_u32CurrentIndexUserApp1 == 6) {
+      au8line1 = line1VE;
+      au8line2 = line2VE;
+      length = sizeof(line1VE) / sizeof(line1VE[0]);
+      u16NoteMoveInterval = 175;
     } else {
       au8line1 = line1;
       au8line2 = line2;
@@ -827,7 +983,13 @@ static void UserApp1SM_Idle(void)
       } else if(G_u32CurrentIndexUserApp1 == 4) {
         memcpy(line1CA, G_au8Line1CA, sizeof(line1CA));
         memcpy(line2CA, G_au8Line2CA, sizeof(line2CA));
-      } else {
+      } else if(G_u32CurrentIndexUserApp1 == 5) {
+        memcpy(line1HO, G_au8Line1HO, sizeof(line1HO));
+        memcpy(line2HO, G_au8Line2HO, sizeof(line2HO));
+      } else if(G_u32CurrentIndexUserApp1 == 6) {
+        memcpy(line1VE, G_au8Line1VE, sizeof(line1VE));
+        memcpy(line2VE, G_au8Line2VE, sizeof(line2VE));
+      } else  {
         memcpy(line1, G_au8Line1, sizeof(line1));
         memcpy(line2, G_au8Line2, sizeof(line2));
       }
